@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4b4f8f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kubiko">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>Kubiko</title>
+<style>
+:root{--bg:#4b4f8f;--bg2:#2c2e63;--card:#5d629f;--hole:#7b80b8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root{--bg:#5a5fa8;--bg2:#3a3d7c;--card:#6c71b4}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0,var(--bg),var(--bg2));color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;align-items:center;padding:10px 12px 20px;user-select:none}
+h1{margin:4px 0;font-size:34px;letter-spacing:1px;text-shadow:0 3px 0 #0004}
+h1 span:nth-child(1){color:#7ed321}h1 span:nth-child(2){color:#1ea7fd}h1 span:nth-child(3){color:#ff7a00}h1 span:nth-child(4){color:#ff4fa3}h1 span:nth-child(5){color:#b46bff}h1 span:nth-child(6){color:#ffd400}
+#lname{font-weight:800;font-size:14px;opacity:.9}
+.dots{display:flex;gap:6px;margin:6px 0}.dots i{width:26px;height:8px;border-radius:5px;background:#0004}.dots i.on{background:#ffd400}
+.bar{display:flex;gap:6px;width:100%;max-width:420px;margin:4px 0}
+.bar div{flex:1;background:#0003;border-radius:14px;padding:6px 2px;text-align:center;font-size:11px}
+.bar b{display:block;font-size:18px}
+#board{width:100%;max-width:420px;display:grid;gap:4px;padding:8px;background:var(--card);border-radius:18px;box-shadow:inset 0 0 0 3px #0003,0 10px 30px #0005}
+.cell{aspect-ratio:1;border-radius:10px;background:var(--hole);opacity:.35}
+.blk{opacity:1;box-shadow:inset 0 -5px 0 #0003,inset 0 3px 0 #fff4;background-image:radial-gradient(circle at 30% 30%,#fff5 0 14%,transparent 15%),radial-gradient(circle at 70% 30%,#fff5 0 14%,transparent 15%),radial-gradient(circle at 30% 70%,#fff5 0 14%,transparent 15%),radial-gradient(circle at 70% 70%,#fff5 0 14%,transparent 15%);transition:transform .2s,opacity .25s}
+.wall{background:linear-gradient(#ffd21f,#f5a800)!important;background-image:none;box-shadow:inset 0 -5px 0 #0003,inset 0 3px 0 #fff6}
+.pop{transform:scale(1.25) rotate(8deg);opacity:0!important}
+#shoot{width:100%;max-width:420px;display:grid;gap:4px;padding:0 8px;margin-top:6px}
+.sh{aspect-ratio:1;border:0;border-radius:10px 10px 4px 4px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -6px 0 #0003;cursor:pointer;transition:transform .1s}
+.sh:active{transform:translateY(-6px)}
+.sh i{width:55%;height:40%;background:#fff;clip-path:polygon(0 0,100% 0,50% 100%);opacity:.9;transform:rotate(180deg)}
+.sh.off{opacity:.2}
+.shake{animation:sh .3s}
+@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.btns{display:flex;gap:10px;margin-top:14px}
+button.main{border:0;border-radius:30px;padding:12px 22px;font-weight:800;font-size:15px;color:#fff;background:linear-gradient(135deg,#ff4fa3,#ff7a00);box-shadow:0 5px 0 #0004;cursor:pointer}
+button.main.alt{background:linear-gradient(135deg,#1ea7fd,#9b3df0)}
+#made{margin-top:18px;font-size:22px;font-weight:900;text-align:center;letter-spacing:1px}
+#made .l{display:inline-block;animation:wave 1.6s ease-in-out infinite,hue 4s linear infinite}
+@keyframes wave{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-9px) scale(1.2)}}
+@keyframes hue{0%{color:#7ed321;text-shadow:0 0 12px #7ed321}25%{color:#1ea7fd;text-shadow:0 0 12px #1ea7fd}50%{color:#ff4fa3;text-shadow:0 0 12px #ff4fa3}75%{color:#ffd400;text-shadow:0 0 12px #ffd400}100%{color:#7ed321;text-shadow:0 0 12px #7ed321}}
+.modal{position:fixed;inset:0;background:#000a;display:none;align-items:flex-end;justify-content:center;z-index:9}
+.modal.on{display:flex}
+.sheet{background:var(--bg2);width:100%;max-width:460px;border-radius:26px 26px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom,0px));animation:up .35s ease;max-height:90vh;overflow:auto}
+@keyframes up{from{transform:translateY(100%)}}
+.sheet h2{margin:0 0 10px;text-align:center}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs button{flex:1;border:0;padding:10px;border-radius:14px;background:#0004;color:#fff;font-weight:700;cursor:pointer}
+.tabs button.on{background:linear-gradient(135deg,#1ea7fd,#9b3df0)}
+.step{display:flex;gap:12px;align-items:center;background:#0003;border-radius:16px;padding:12px;margin:8px 0;opacity:0;animation:in .5s forwards}
+.step:nth-child(2){animation-delay:.15s}.step:nth-child(3){animation-delay:.3s}.step:nth-child(4){animation-delay:.45s}
+@keyframes in{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:none}}
+.n{flex:none;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#ffd400,#ff7a00);color:#000;font-weight:900;display:flex;align-items:center;justify-content:center}
+.step small{display:block;opacity:.8}
+.ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:#000b;z-index:8;text-align:center;padding:20px}
+.ov.on{display:flex}.ov h2{font-size:34px;margin:0 0 8px;animation:wave 1s infinite}.ov p{margin:0 0 16px;opacity:.9}
+</style>
+</head>
+<body>
+<h1><span>K</span><span>u</span><span>b</span><span>i</span><span>k</span><span>o</span></h1>
+<div id="lname"></div><div class="dots" id="dots"></div>
+<div class="bar"><div>სვლები<b id="mv">0</b></div><div>დრო<b id="tm">∞</b></div><div>ქულა<b id="sc">0</b></div><div>რეკორდი<b id="bs">0</b></div></div>
+<div id="board"></div>
+<div id="shoot"></div>
+<div class="btns"><button class="main alt" id="rs">↻ თავიდან</button><button class="main" id="ins">📲 ინსტალაცია</button></div>
+<div id="made"></div>
+
+<div class="modal" id="modal"><div class="sheet">
+<h2>📲 დააყენე Kubiko</h2>
+<div class="tabs"><button id="tA" class="on">🤖 Android</button><button id="tI">🍎 iPhone</button></div>
+<div id="steps"></div>
+<button class="main" style="width:100%;margin-top:10px" id="go">ინსტალაცია</button>
+<button class="main alt" style="width:100%;margin-top:8px" id="cl">დახურვა</button>
+</div></div>
+<div class="ov" id="ov"><h2 id="ovt"></h2><p id="ovp"></p><button class="main" id="ovb"></button></div>
+
+<script>
+var C=['#7ed321','#1ea7fd','#ff7a00','#ff4fa3','#9b3df0','#ffd400'],W=7;
+/* r=რიგები n=ფერები p=სასროლის დამთხვევის შანსი s=სათადარიგო სვლები w=კედლები t=დრო (წმ) */
+var LV=[
+ {r:5,n:3,p:.9,s:9,w:0,t:0,name:'1 · მარტივი'},
+ {r:6,n:4,p:.8,s:6,w:0,t:0,name:'2 · ნორმალური'},
+ {r:7,n:5,p:.65,s:5,w:2,t:130,name:'3 · საშუალო'},
+ {r:8,n:6,p:.5,s:3,w:5,t:95,name:'4 · რთული'},
+ {r:9,n:6,p:.4,s:2,w:9,t:75,name:'5 · ძალიან რთული 🔥'}];
+var $=function(i){return document.getElementById(i)};
+var lvl=1,score=0,lvlScore=0,best=0,moves=0,time=0,g=[],sh=[],rows=5,cfg=LV[0],lock=false,prompt_=null,timer=null;
+try{best=+localStorage.getItem('kubiko_best')||0}catch(e){}
+function rnd(n){return Math.floor(Math.random()*n)}
+function comps(){var seen={},n=0;
+ for(var r=0;r<rows;r++)for(var c=0;c<W;c++){var v=g[r][c];if(v==null||v<0||seen[r+','+c])continue;n++;
+  var st=[[r,c]];while(st.length){var p=st.pop(),k=p[0]+','+p[1];if(seen[k]||p[0]<0||p[0]>=rows||p[1]<0||p[1]>=W||g[p[0]][p[1]]!==v)continue;seen[k]=1;st.push([p[0]+1,p[1]],[p[0]-1,p[1]],[p[0],p[1]+1],[p[0],p[1]-1])}}
+ return n}
+function start(){
+ cfg=LV[lvl-1];rows=cfg.r;g=[];lvlScore=score;
+ for(var r=0;r<rows;r++){g.push([]);for(var c=0;c<W;c++)g[r].push(rnd(cfg.n))}
+ for(var i=0;i<cfg.w;i++)g[rnd(rows)][rnd(W)]=-1;
+ moves=comps()+cfg.s;time=cfg.t;
+ refresh();lock=false;draw();clearInterval(timer);
+ if(cfg.t)timer=setInterval(function(){if($('ov').classList.contains('on'))return;time--;$('tm').textContent=time;if(time<=0){clearInterval(timer);lose('⏰ დრო ამოიწურა')}},1000);
+}
+function low(c){for(var r=rows-1;r>=0;r--)if(g[r][c]!=null)return r;return -1}
+function playable(c){var r=low(c);return r>=0&&g[r][c]>=0}
+function refresh(){
+ var any=false;for(var c=0;c<W;c++)if(playable(c))any=true;
+ if(!any){for(var c=0;c<W;c++){var r=low(c);if(r>=0&&g[r][c]<0)g[r][c]=null}}
+ var cols=[];for(var c=0;c<W;c++)if(playable(c))cols.push(g[low(c)][c]);
+ for(var c=0;c<W;c++){if(!playable(c)){sh[c]=null;continue}
+  sh[c]=Math.random()<cfg.p?g[low(c)][c]:cols[rnd(cols.length)]}
+ var ok=[];for(var c=0;c<W;c++)if(playable(c)&&sh[c]===g[low(c)][c])ok.push(c);
+ var pl=[];for(var c=0;c<W;c++)if(playable(c)&&ok.indexOf(c)<0)pl.push(c);
+ while(ok.length<2&&pl.length){var c=pl.splice(rnd(pl.length),1)[0];sh[c]=g[low(c)][c];ok.push(c)}
+}
+function draw(){
+ var b=$('board');b.style.gridTemplateColumns='repeat('+W+',1fr)';b.innerHTML='';
+ for(var r=0;r<rows;r++)for(var c=0;c<W;c++){var d=document.createElement('div');var v=g[r][c];
+  d.className='cell'+(v!=null?' blk':'')+(v===-1?' wall':'');d.id='b'+r+'_'+c;if(v>=0)d.style.backgroundColor=C[v];b.appendChild(d)}
+ var s=$('shoot');s.style.gridTemplateColumns='repeat('+W+',1fr)';s.innerHTML='';
+ for(var c=0;c<W;c++){(function(c){var e=document.createElement('button');e.className='sh'+(sh[c]==null?' off':'');e.id='s'+c;
+  e.style.background=sh[c]!=null?C[sh[c]]:'#888';e.innerHTML='<i></i>';e.onclick=function(){fire(c)};s.appendChild(e)})(c)}
+ $('mv').textContent=moves;$('sc').textContent=score;$('bs').textContent=best;$('tm').textContent=cfg.t?time:'∞';
+ $('lname').textContent='დონე '+cfg.name;var h='';for(var i=1;i<=5;i++)h+='<i class="'+(i<=lvl?'on':'')+'"></i>';$('dots').innerHTML=h;
+}
+function fire(c){
+ if(lock||sh[c]==null)return;var r=low(c);if(r<0||g[r][c]<0)return;
+ moves--;
+ if(g[r][c]!==sh[c]){var e=$('s'+c);e.classList.add('shake');if(navigator.vibrate)navigator.vibrate(60);lock=true;
+  setTimeout(function(){lock=false;refresh();draw();check()},300);return}
+ var col=g[r][c],st=[[r,c]],seen={},list=[];
+ while(st.length){var p=st.pop(),k=p[0]+','+p[1];if(seen[k]||p[0]<0||p[0]>=rows||p[1]<0||p[1]>=W||g[p[0]][p[1]]!==col)continue;seen[k]=1;list.push(p);
+  st.push([p[0]+1,p[1]],[p[0]-1,p[1]],[p[0],p[1]+1],[p[0],p[1]-1])}
+ var walls=[];
+ list.forEach(function(p){[[1,0],[-1,0],[0,1],[0,-1]].forEach(function(d){var y=p[0]+d[0],x=p[1]+d[1];if(y>=0&&y<rows&&x>=0&&x<W&&g[y][x]===-1)walls.push([y,x])})});
+ lock=true;
+ list.concat(walls).forEach(function(p){var el=$('b'+p[0]+'_'+p[1]);if(el)el.classList.add('pop')});
+ list.concat(walls).forEach(function(p){g[p[0]][p[1]]=null});
+ score+=list.length*list.length*10*lvl;
+ if(score>best){best=score;try{localStorage.setItem('kubiko_best',best)}catch(e){}}
+ if(navigator.vibrate)navigator.vibrate(20);
+ setTimeout(function(){lock=false;refresh();draw();check()},260);
+}
+function left(){var n=0;g.forEach(function(r){r.forEach(function(v){if(v!=null&&v>=0)n++})});return n}
+function check(){
+ if(!left()){clearInterval(timer);score+=moves*50+Math.max(time,0)*5;best=Math.max(best,score);
+  try{localStorage.setItem('kubiko_best',best)}catch(e){}
+  if(lvl>=5)over('🏆 ჩემპიონი ხარ!','ყველა 5 დონე გაიარე. ქულა: '+score,'თავიდან დაწყება',function(){lvl=1;score=0;start()});
+  else over('🎉 დონე '+lvl+' გავლილია!','ქულა: '+score,'შემდეგი დონე ›',function(){lvl++;start()})}
+ else if(moves<=0)lose('😵 სვლები ამოიწურა');
+}
+function lose(t){clearInterval(timer);over(t,'სცადე ხელახლა დონე '+lvl,'კიდევ ერთხელ',function(){score=lvlScore;start()})}
+function over(t,p,b,f){$('ovt').textContent=t;$('ovp').textContent=p;$('ovb').textContent=b;$('ov').classList.add('on');$('ovb').onclick=function(){$('ov').classList.remove('on');f()}}
+$('rs').onclick=function(){$('ov').classList.remove('on');score=lvlScore;start()};
+
+(function(){var t='Made by: The programist!',h='';for(var i=0;i<t.length;i++)h+=t[i]==' '?' ':'<span class="l" style="animation-delay:'+(i*.08)+'s,'+(i*.2)+'s">'+t[i]+'</span>';$('made').innerHTML=h})();
+
+if('serviceWorker' in navigator&&location.protocol.indexOf('http')==0)navigator.serviceWorker.register('sw.js').catch(function(){});
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();prompt_=e});
+var tab='a';
+function steps(){
+ var A=[['⋮','გახსენი Chrome-ის მენიუ','ზედა მარჯვენა კუთხეში სამი წერტილი'],['📲','აირჩიე „Install app“','ან „Add to Home screen“'],['✅','დაადასტურე','Kubiko გამოჩნდება მთავარ ეკრანზე'],['🎮','ითამაშე სრულ ეკრანზე','აპის მსგავსად, offline-ც კი']];
+ var I=[['🧭','გახსენი Safari-ში','მხოლოდ Safari-დან მუშაობს'],['⬆️','დააჭირე Share ღილაკს','კვადრატი ისრით, ქვედა პანელში'],['➕','აირჩიე „Add to Home Screen“','გადაასქროლე სიაში ქვემოთ'],['✅','დააჭირე „Add“','აიკონი გამოჩნდება მთავარ ეკრანზე']];
+ var L=tab=='a'?A:I,h='';
+ L.forEach(function(s,i){h+='<div class="step"><div class="n">'+(i+1)+'</div><div><b>'+s[0]+' '+s[1]+'</b><small>'+s[2]+'</small></div></div>'});
+ $('steps').innerHTML=h;$('go').style.display=tab=='a'?'block':'none';
+ $('tA').className=tab=='a'?'on':'';$('tI').className=tab=='i'?'on':'';
+}
+$('ins').onclick=function(){tab=/iPhone|iPad|iPod/.test(navigator.userAgent)?'i':'a';steps();$('modal').classList.add('on')};
+$('tA').onclick=function(){tab='a';steps()};$('tI').onclick=function(){tab='i';steps()};
+$('cl').onclick=function(){$('modal').classList.remove('on')};
+$('go').onclick=function(){if(prompt_){prompt_.prompt();prompt_=null}else alert('გამოიყენე ნაბიჯები: მენიუ ⋮ → Install app')};
+start();
+</script>
+</body>
+</html>
